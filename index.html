@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pankaj — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<link rel = "stylesheet" href = "style.css">
+<style>
+
+</style>
+</head>
+<body>
+<div class="portfolio">
+
+  <!-- HEADER -->
+  <div class="header-block">
+    <div class="name-line">
+      <span class="hi-text">Hi, I'm</span>
+      <span class="name-text">PANKAJ</span>
+    </div>
+    <p class="header-sub">Backend Developer &nbsp;·&nbsp; <span>AI Integration</span> &nbsp;·&nbsp; Based in India</p>
+  </div>
+
+  <!-- MID ROW: left col + right col -->
+  <div class="mid-row">
+
+    <!-- LEFT: About + Currently -->
+    <div class="mid-left">
+
+      <div class="about-block" style="border-radius:0;">
+        <p class="label">About</p>
+        <p class="about-text">
+          I build server-side systems and integrate AI APIs into real products.
+          Comfortable with databases, REST APIs, and plugging LLMs into backend workflows.
+          Frontend when needed — enough to ship.
+        </p>
+      </div>
+
+      <div class="current-block" style="border-radius:0;">
+        <p class="label">Currently</p>
+        <div class="live-row">
+          <div class="live-dot"></div>
+          <div class="live-info">
+            <p class="live-title">Backend - Login/SignUp </p>
+            <p class="live-desc">Writing Backend for Video Watching app Like Youtube.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: Stack + Tools -->
+    <div class="mid-right">
+
+      <div class="stack-block" style="border-radius:0;">
+        <p class="label">Stack</p>
+        <div class="stack-grid">
+
+          <div class="stack-row">
+            <span class="stack-key">Backend</span>
+            <div class="stack-val">
+              <span class="tech"><i class="ti ti-brand-nodejs"></i> Node.js</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-server"></i> Express</span>
+            </div>
+          </div>
+
+          <div class="stack-row">
+            <span class="stack-key">AI / APIs</span>
+            <div class="stack-val">
+              <span class="tech"><i class="ti ti-brain"></i> OpenAI</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-robot"></i> Anthropic</span>
+            </div>
+          </div>
+
+          <div class="stack-row">
+            <span class="stack-key">Databases</span>
+            <div class="stack-val">
+              <span class="tech"><i class="ti ti-leaf"></i> MongoDB</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-database"></i> Redis</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-database"></i> PostgreSQL</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-database"></i> MySQL</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-flame"></i> Firebase</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-bolt"></i> Supabase</span>
+            </div>
+          </div>
+
+          <div class="stack-row">
+            <span class="stack-key">Frontend</span>
+            <div class="stack-val">
+              <span class="tech"><i class="ti ti-brand-html5"></i> HTML</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-brand-css3"></i> CSS</span>
+              <span class="sdot">·</span>
+              <span class="tech"><i class="ti ti-brand-javascript"></i> JS</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="tools-block" style="border-radius:0;">
+        <p class="label">Tools</p>
+        <div class="tools-chips">
+          <span class="chip"><i class="ti ti-brand-git"></i> Git</span>
+          <span class="chip"><i class="ti ti-api"></i> REST APIs</span>
+          <span class="chip"><i class="ti ti-send"></i> Postman</span>
+          <span class="chip"><i class="ti ti-code"></i> VS Code</span>
+          <span class="chip"><i class="ti ti-code"></i> Cursor</span>
+          <span class="chip"><i class="ti ti-code"></i> OpenCode</span>
+          <span class="chip"><i class="ti ti-code"></i> Cluade</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PROJECTS SLIDER -->
+  <div class="slider-block">
+    <div class="slider-header">
+      <p class="label" style="margin:0;">Projects</p>
+      <div class="slider-nav">
+        <button class="nav-btn" id="prev" aria-label="previous"><i class="ti ti-chevron-left"></i></button>
+        <button class="nav-btn" id="next" aria-label="next"><i class="ti ti-chevron-right"></i></button>
+      </div>
+    </div>
+
+    <div class="slider-viewport">
+      <div class="slider-track" id="track">
+
+        <div class="project-card">
+          <div class="project-top">
+            <span class="project-name"><i class="ti ti-folder"></i> FinanaceDashBoard</span>
+            <a href="#" class="project-link"><i class="ti ti-external-link"></i> view</a>
+          </div>
+          <p class="project-desc">Manage and record the Finanace Of purchasing things.</p>
+          <div class="tags">
+            <span class="tag">Node.js</span>
+            <span class="tag">MongoDB</span>
+            <span class="tag">OpenAI API</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-top">
+            <span class="project-name"><i class="ti ti-folder"></i>Restaurant Management System</span>
+            <a href="#" class="project-link"><i class="ti ti-external-link"></i> view</a>
+          </div>
+          <p class="project-desc">Manage Order Payment , Order Menu provide the best feature for custumer.</p>
+          <div class="tags">
+            <span class="tag">Express</span>
+            <span class="tag">PostgreSQL</span>
+            <span class="tag">Redis</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-top">
+            <span class="project-name"><i class="ti ti-folder"></i> URL Shortner</span>
+            <a href="#" class="project-link"><i class="ti ti-external-link"></i> view</a>
+          </div>
+          <p class="project-desc">URl shortner which help user to use short URL instead of Long - Build with the help of AI.</p>
+          <div class="tags">
+            <span class="tag">Firebase</span>
+            <span class="tag">Supabase</span>
+            <span class="tag">Anthropic</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-top">
+            <span class="project-name"><i class="ti ti-folder"></i> TO-DO</span>
+            <a href="#" class="project-link"><i class="ti ti-external-link"></i> view</a>
+          </div>
+          <p class="project-desc">A to do app which manages my to-do's for day purpose use.</p>
+          <div class="tags">
+            <span class="tag">HTML</span>
+            <span class="tag">CSS</span>
+            <span class="tag">JavaScript</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="dots" id="dots">
+      <div class="dot-ind active"></div>
+      <div class="dot-ind"></div>
+    </div>
+  </div>
+
+  <!-- REACH ME -->
+  <div class="reach-block">
+    <div class="reach-links">
+      <a href="#" class="reach-link"><i class="ti ti-brand-linkedin"></i> LinkedIn</a>
+      <a href="mailto:you@email.com" class="reach-link"><i class="ti ti-mail"></i> Email</a>
+      <a href="#" class="reach-link"><i class="ti ti-brand-twitter"></i> Twitter</a>
+      <a href="#" class="reach-link"><i class="ti ti-brand-github"></i> GitHub</a>
+    </div>
+    <span style="font-size:10px; color:var(--text-tertiary);">pankaj.dev</span>
+  </div>
+
+</div>
+
+<script src ="./script.js"></script>
+  
+</body>
+</html>
