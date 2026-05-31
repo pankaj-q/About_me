@@ -185,6 +185,14 @@ html, body {
   color: var(--text-secondary);
   line-height: 1.65;
 }
+.live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 7px;
+  color: var(--green);
+  font-size: 10px;
+}
 
 /* ─── STACK ─── */
 .stack-block {

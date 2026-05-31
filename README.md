@@ -1,42 +1,77 @@
 # About_Pankaj
 
-A minimal personal/about web page built with plain HTML, CSS, and JavaScript.
+A personal portfolio powered by a small Node.js/Express backend. The frontend is still plain HTML, CSS, and JavaScript, but the "Currently" section now loads live activity from an API.
 
-## Project Overview
+## Features
 
-This repository contains a small static site consisting of a single page (`index.html`) with styles and client-side behavior. It's intended as a simple personal page or starter template.
+- Portfolio homepage served by Express
+- API health check
+- Live activity API
+- Persistent activity data stored in `data/activity.json`
+- Frontend status text like `I am live now` or `I was live 2 hours ago`
 
-## Files
+## Project Files
 
-- `index.html` — Main HTML page and content.
-- `style.css` — Styles for layout and visual design.
-- `script.js` — JavaScript for interactivity.
+- `server.js` - Express backend and API routes
+- `package.json` - project scripts and dependencies
+- `index.html` - portfolio page
+- `style.css` - page styling
+- `script.js` - slider and live activity fetch logic
+- `data/activity.json` - saved current work and last active time
 
-## Quick Start
+## Run Locally
 
-1. Open `index.html` in your browser (double-click or drag into a browser window).
-2. Or serve the folder with a simple HTTP server (recommended for some browser features):
+Install dependencies:
 
 ```bash
-# Python 3
-python3 -m http.server 8000
-
-# then open http://localhost:8000 in your browser
+npm install
 ```
 
-## Development
+Start the backend:
 
-- Edit `index.html`, `style.css`, or `script.js` and refresh the browser to see changes.
-- Use your editor's live-reload extension for faster iteration.
+```bash
+npm run dev
+```
 
-## Contributing
+Open:
 
-Small improvements, fixes, or content updates are welcome. If you'd like specific help or features added, open an issue or message the project owner.
+```text
+http://localhost:3000
+```
 
-## License
+## API
 
-This project has no license file. Add a `LICENSE` if you want to specify terms (for example, MIT).
+Check server:
 
----
+```bash
+GET /api/health
+```
 
-Created for a small personal/static site using plain web technologies.
+Get live activity:
+
+```bash
+GET /api/profile/activity
+```
+
+Update activity and mark yourself live:
+
+```bash
+POST /api/profile/activity
+Content-Type: application/json
+
+{
+  "title": "Backend - Login/SignUp",
+  "description": "Writing backend for a video watching app like YouTube."
+}
+```
+
+Set a custom last active time:
+
+```bash
+POST /api/profile/activity
+Content-Type: application/json
+
+{
+  "lastActiveAt": "2026-05-31T03:30:00.000Z"
+}
+```

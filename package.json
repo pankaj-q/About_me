@@ -1,0 +1,22 @@
+{
+  "name": "about-pankaj-backend",
+  "version": "1.0.0",
+  "description": "Personal portfolio with a Node.js backend and live activity status.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "portfolio",
+    "node",
+    "express",
+    "backend"
+  ],
+  "author": "Pankaj",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemon": "^3.1.14"
+  }
+}
