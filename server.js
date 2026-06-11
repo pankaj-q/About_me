@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const helmet = require('helmet');
 const fs = require('fs/promises');
 const path = require('path');
 
@@ -13,26 +14,34 @@ const LIVE_WINDOW_MS = Number(process.env.LIVE_WINDOW_MS || 5 * 60 * 1000);
 const ACTIVITY_API_KEY = process.env.ACTIVITY_API_KEY;
 const MAX_TEXT_LENGTH = 180;
 const postAttempts = new Map();
+const heartbeatAttempts = new Map();
 
 app.disable('x-powered-by');
-app.use(express.json({ limit: '10kb' }));
+
 app.use((req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('Referrer-Policy', 'no-referrer');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   next();
 });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+
+app.use(express.json({ limit: '2kb' }));
+
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+  next();
 });
 
-app.get('/style.css', (req, res) => {
-  res.sendFile(path.join(__dirname, 'style.css'));
-});
-
-app.get('/script.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'script.js'));
-});
+app.use(express.static(path.join(__dirname, 'client', 'dist'), {
+  maxAge: '1h',
+  etag: true,
+  immutable: true,
+}));
 
 async function readActivity() {
   try {
@@ -55,6 +64,9 @@ async function readActivity() {
 }
 
 async function writeActivity(activity) {
+  if (!activity || typeof activity !== 'object') {
+    throw new Error('Invalid activity data');
+  }
   await fs.mkdir(path.dirname(ACTIVITY_FILE), { recursive: true });
   await fs.writeFile(ACTIVITY_FILE, `${JSON.stringify(activity, null, 2)}\n`);
 }
@@ -81,8 +93,8 @@ function toStatus(activity) {
   const isLive = now.getTime() - safeLastActive.getTime() <= LIVE_WINDOW_MS;
 
   return {
-    title: activity.title,
-    description: activity.description,
+    title: String(activity.title || '').slice(0, MAX_TEXT_LENGTH),
+    description: String(activity.description || '').slice(0, MAX_TEXT_LENGTH),
     isLive,
     lastActiveAt: safeLastActive.toISOString(),
     relativeTime: formatRelativeTime(safeLastActive, now),
@@ -96,15 +108,19 @@ function requireActivityApiKey(req, res, next) {
   }
 
   const key = req.get('x-api-key');
-  if (key !== ACTIVITY_API_KEY) {
+  if (!key || key !== ACTIVITY_API_KEY) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   next();
 }
 
+function validateIp(req) {
+  return req.ip || req.connection?.remoteAddress || 'unknown';
+}
+
 function rateLimitActivityUpdates(req, res, next) {
-  const ip = req.ip;
+  const ip = validateIp(req);
   const now = Date.now();
   const windowMs = 60 * 1000;
   const maxAttempts = 10;
@@ -119,6 +135,21 @@ function rateLimitActivityUpdates(req, res, next) {
   next();
 }
 
+function rateLimitHeartbeat(req, res, next) {
+  const ip = validateIp(req);
+  const now = Date.now();
+  const windowMs = 30 * 1000;
+  const attempts = (heartbeatAttempts.get(ip) || []).filter((t) => now - t < windowMs);
+
+  if (attempts.length >= 1) {
+    return res.json({ ok: true });
+  }
+
+  attempts.push(now);
+  heartbeatAttempts.set(ip, attempts);
+  next();
+}
+
 function cleanText(value, fallback) {
   if (typeof value !== 'string') return fallback;
   const trimmed = value.trim();
@@ -128,8 +159,17 @@ function cleanText(value, fallback) {
 
 function cleanDate(value) {
   if (!value) return new Date().toISOString();
+  if (typeof value !== 'string') return new Date().toISOString();
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+}
+
+function validateActivityBody(req, res, next) {
+  const body = req.body || {};
+  if (typeof body !== 'object' || Array.isArray(body)) {
+    return res.status(400).json({ error: 'Invalid request body' });
+  }
+  next();
 }
 
 app.get('/api/health', (req, res) => {
@@ -145,7 +185,7 @@ app.get('/api/profile/activity', async (req, res, next) => {
   }
 });
 
-app.post('/api/profile/activity', requireActivityApiKey, rateLimitActivityUpdates, async (req, res, next) => {
+app.post('/api/profile/activity', validateActivityBody, requireActivityApiKey, rateLimitActivityUpdates, async (req, res, next) => {
   try {
     const current = await readActivity();
     const updated = {
@@ -162,13 +202,48 @@ app.post('/api/profile/activity', requireActivityApiKey, rateLimitActivityUpdate
   }
 });
 
-app.use((req, res) => {
+app.post('/api/profile/heartbeat', rateLimitHeartbeat, async (req, res, next) => {
+  try {
+    const current = await readActivity();
+    current.lastActiveAt = new Date().toISOString();
+    await writeActivity(current);
+    res.json(toStatus(current));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api/')) {
+    return res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+  }
   res.status(404).json({ error: 'Not found' });
 });
 
-app.use((error, req, res, next) => {
-  console.error(error);
+app.use((error, req, res, _next) => {
+  console.error(`[${new Date().toISOString()}] ${error.message || 'Server error'}`);
   res.status(500).json({ error: 'Server error' });
+});
+
+function cleanup() {
+  postAttempts.clear();
+  heartbeatAttempts.clear();
+}
+
+process.on('SIGTERM', () => {
+  cleanup();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  cleanup();
+  process.exit(0);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error(`[UNCAUGHT] ${error.message}`);
+  cleanup();
+  process.exit(1);
 });
 
 app.listen(PORT, () => {
