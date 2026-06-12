@@ -7,21 +7,25 @@ const projects = [
     name: 'FinanceDashboard',
     desc: 'Manage and record finances for purchasing things.',
     tags: ['Node.js', 'MongoDB', 'OpenAI API'],
+    url: 'https://github.com/pankaj/finance-dashboard',
   },
   {
     name: 'Restaurant Management',
     desc: 'Manage orders, payments, menus with the best customer experience.',
     tags: ['Express', 'PostgreSQL', 'Redis'],
+    url: 'https://github.com/pankaj/restaurant-mgmt',
   },
   {
     name: 'URL Shortener',
     desc: 'Short URLs powered by AI — clean, fast, trackable.',
     tags: ['Firebase', 'Supabase', 'Anthropic'],
+    url: 'https://github.com/pankaj/url-shortener',
   },
   {
     name: 'TO-DO App',
     desc: 'Simple daily task manager built with vanilla stack.',
     tags: ['HTML', 'CSS', 'JavaScript'],
+    url: 'https://github.com/pankaj/todo-app',
   },
 ];
 
@@ -193,8 +197,10 @@ export default function App() {
                 </div>
               </div>
             </Panel>
+          </div>
 
-            <Panel {...panelConfig.tools} delay={0.10}>
+          <div className="mid-col">
+            <Panel {...panelConfig.tools} delay={0.06}>
               <div className="pills">
                 <span className="pill pill--tool">Git</span>
                 <span className="pill pill--tool">REST APIs</span>
@@ -230,7 +236,7 @@ export default function App() {
                 <div key={p.name} className="project-card" ref={(el) => (cardRefs.current[i] = el)}>
                   <div className="project-top">
                     <span className="project-name">{p.name}</span>
-                    <a href="#" className="project-link">
+                    <a href={p.url} target="_blank" rel="noopener noreferrer" className="project-link" onClick={(e) => e.stopPropagation()}>
                       view
                       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
                     </a>
