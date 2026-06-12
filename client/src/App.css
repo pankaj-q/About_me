@@ -5,19 +5,11 @@
   --bg: #000000;
   --surface: rgba(255,255,255,0.04);
   --surface-hover: rgba(255,255,255,0.07);
-  --border: rgba(255,255,255,0.08);
-  --border-hover: rgba(255,255,255,0.15);
+  --border: rgba(255,255,255,0.10);
+  --border-hover: rgba(255,255,255,0.20);
   --text: #ffffff;
-  --text-dim: rgba(255,255,255,0.45);
+  --text-dim: rgba(255,255,255,0.40);
   --text-mid: rgba(255,255,255,0.65);
-  --blue: #60a5fa;
-  --green: #4ade80;
-  --orange: #fb923c;
-  --purple: #c084fc;
-  --cyan: #67e8f9;
-  --pink: #f472b6;
-  --red: #f87171;
-  --yellow: #facc15;
 }
 
 html { scroll-behavior: smooth; }
@@ -68,9 +60,9 @@ body {
   user-select: none;
 }
 
-.hero-line-user { color: var(--green); }
+.hero-line-user { color: var(--text); }
 .hero-line-at { color: var(--text-dim); }
-.hero-line-host { color: var(--blue); }
+.hero-line-host { color: var(--text-mid); }
 .hero-line-path { color: var(--text-mid); }
 .hero-line-dollar { color: var(--text-dim); }
 
@@ -89,11 +81,11 @@ body {
 }
 
 .hero-name span:nth-child(1) { animation-delay: 0.02s; color: var(--text); }
-.hero-name span:nth-child(2) { animation-delay: 0.06s; color: var(--blue); }
-.hero-name span:nth-child(3) { animation-delay: 0.10s; color: var(--orange); }
-.hero-name span:nth-child(4) { animation-delay: 0.14s; color: var(--green); }
-.hero-name span:nth-child(5) { animation-delay: 0.18s; color: var(--purple); }
-.hero-name span:nth-child(6) { animation-delay: 0.22s; color: var(--pink); }
+.hero-name span:nth-child(2) { animation-delay: 0.06s; color: var(--text); }
+.hero-name span:nth-child(3) { animation-delay: 0.10s; color: var(--text-mid); }
+.hero-name span:nth-child(4) { animation-delay: 0.14s; color: var(--text-dim); }
+.hero-name span:nth-child(5) { animation-delay: 0.18s; color: var(--text); }
+.hero-name span:nth-child(6) { animation-delay: 0.22s; color: var(--text-mid); }
 
 @keyframes charPop {
   from { opacity: 0; transform: translateY(10px) scale(0.9); filter: blur(3px); }
@@ -107,7 +99,7 @@ body {
 }
 
 .hero-title-code {
-  color: var(--purple);
+  color: var(--text-mid);
 }
 
 .hero-title-slash {
@@ -116,7 +108,7 @@ body {
 }
 
 .hero-title-loc {
-  color: var(--cyan);
+  color: var(--text-dim);
 }
 
 .hero-tagline {
@@ -153,9 +145,9 @@ body {
 }
 
 .hero-live--active {
-  color: var(--green);
-  border-color: rgba(74, 222, 128, 0.2);
-  background: rgba(74, 222, 128, 0.06);
+  color: var(--text);
+  border-color: var(--border-hover);
+  background: var(--surface-hover);
 }
 
 .hero-live--inactive {
@@ -260,12 +252,12 @@ body {
   flex-shrink: 0;
 }
 
-.panel-indicator--blue { background: var(--blue); }
-.panel-indicator--green { background: var(--green); }
-.panel-indicator--orange { background: var(--orange); }
-.panel-indicator--purple { background: var(--purple); }
-.panel-indicator--cyan { background: var(--cyan); }
-.panel-indicator--pink { background: var(--pink); }
+.panel-indicator--blue { background: var(--text-mid); }
+.panel-indicator--green { background: var(--text); }
+.panel-indicator--orange { background: var(--text-mid); }
+.panel-indicator--purple { background: var(--text-dim); }
+.panel-indicator--cyan { background: var(--text); }
+.panel-indicator--pink { background: var(--text-mid); }
 
 .panel-label {
   font-size: 10px;
@@ -274,12 +266,12 @@ body {
   letter-spacing: 0.08em;
 }
 
-.panel-label--blue { color: var(--blue); }
-.panel-label--green { color: var(--green); }
-.panel-label--orange { color: var(--orange); }
-.panel-label--purple { color: var(--purple); }
-.panel-label--cyan { color: var(--cyan); }
-.panel-label--pink { color: var(--pink); }
+.panel-label--blue { color: var(--text-mid); }
+.panel-label--green { color: var(--text); }
+.panel-label--orange { color: var(--text-mid); }
+.panel-label--purple { color: var(--text-dim); }
+.panel-label--cyan { color: var(--text); }
+.panel-label--pink { color: var(--text-mid); }
 
 .panel p {
   font-size: 12px;
@@ -295,7 +287,7 @@ body {
 }
 
 .about-text code {
-  color: var(--orange);
+  color: var(--text);
   font-family: var(--font);
   font-size: 11.5px;
 }
@@ -316,7 +308,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--green);
+  color: var(--text-mid);
 }
 
 .activity-body {
@@ -351,9 +343,9 @@ body {
 }
 
 .activity-badge--live {
-  color: var(--green);
-  background: rgba(74, 222, 128, 0.08);
-  border: 1px solid rgba(74, 222, 128, 0.15);
+  color: var(--text);
+  background: var(--surface-hover);
+  border: 1px solid var(--border-hover);
 }
 
 .activity-badge--away {
@@ -407,20 +399,20 @@ body {
   background: var(--surface-hover);
 }
 
-.pill--backend { border-color: rgba(96, 165, 250, 0.15); }
-.pill--backend:hover { border-color: rgba(96, 165, 250, 0.4); color: var(--blue); }
+.pill--backend { border-color: var(--border); }
+.pill--backend:hover { border-color: var(--border-hover); color: var(--text); }
 
-.pill--ai { border-color: rgba(192, 132, 252, 0.15); }
-.pill--ai:hover { border-color: rgba(192, 132, 252, 0.4); color: var(--purple); }
+.pill--ai { border-color: var(--border); }
+.pill--ai:hover { border-color: var(--border-hover); color: var(--text); }
 
-.pill--db { border-color: rgba(74, 222, 128, 0.15); }
-.pill--db:hover { border-color: rgba(74, 222, 128, 0.4); color: var(--green); }
+.pill--db { border-color: var(--border); }
+.pill--db:hover { border-color: var(--border-hover); color: var(--text); }
 
-.pill--frontend { border-color: rgba(251, 146, 60, 0.15); }
-.pill--frontend:hover { border-color: rgba(251, 146, 60, 0.4); color: var(--orange); }
+.pill--frontend { border-color: var(--border); }
+.pill--frontend:hover { border-color: var(--border-hover); color: var(--text); }
 
-.pill--tool { border-color: rgba(103, 232, 249, 0.12); }
-.pill--tool:hover { border-color: rgba(103, 232, 249, 0.35); color: var(--cyan); }
+.pill--tool { border-color: var(--border); }
+.pill--tool:hover { border-color: var(--border-hover); color: var(--text); }
 
 .pill svg {
   color: var(--text-dim);
@@ -532,8 +524,8 @@ body {
 }
 
 .project-link:hover {
-  color: var(--blue);
-  background: rgba(96,165,250,0.08);
+  color: var(--text);
+  background: var(--surface-hover);
 }
 
 .project-link svg {
@@ -643,7 +635,7 @@ body {
 }
 
 .footer-link:hover svg {
-  color: var(--blue);
+  color: var(--text);
 }
 
 .footer-brand {
