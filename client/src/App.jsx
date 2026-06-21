@@ -4,7 +4,6 @@ import BackgroundParticles from './components/BackgroundParticles';
 import Home from './pages/Home';
 import About from './pages/About';
 import Work from './pages/Work';
-import Resume from './pages/Resume';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 
@@ -32,7 +31,6 @@ const pages = [
   { path: '/', label: 'home' },
   { path: '/about', label: 'about' },
   { path: '/work', label: 'work' },
-  { path: '/resume', label: 'resume' },
   { path: '/blog', label: 'blog' },
   { path: '/contact', label: 'contact' },
 ];
@@ -77,13 +75,12 @@ export default function App() {
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/work" element={<Work />} />
-        <Route path="/resume" element={<Resume />} />
         <Route path="/blog" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
       </Routes>
 
       <footer className="footer">
-        <p>bpankaj.online</p>
+        <p>Backend Developer - Pankaj</p>
       </footer>
 
       <BackToTop />
