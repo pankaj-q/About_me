@@ -41,6 +41,9 @@ app.use(express.static(path.join(__dirname, 'client', 'dist'), {
   maxAge: '1h',
   etag: true,
   immutable: true,
+  setHeaders(res, p) {
+    if (p.endsWith('index.html')) res.setHeader('Cache-Control', 'no-store, must-revalidate');
+  },
 }));
 
 async function readActivity() {
