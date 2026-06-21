@@ -11,9 +11,15 @@ export default function Home() {
       <div className="badge">
         <span className="dot" />
         {loading ? 'Loading...' : activity.isLive ? 'Live now' : activity.statusText}
-         {loading ? 'Loading...' : activity.isLive ? 'Backend Developer' : activity.statusText}
       </div>
-      <h1>Backend Developer - Pankaj</h1>
+      <div className="badge">
+        <span className="dot" />
+        {loading ? 'Loading...' : activity.isLive ? 'Backend Developer' : activity.statusText}
+      </div>
+
+
+      <h1>Backend Developer</h1>
+      <h3>Pankaj</h3>
       <p>I build server-side systems and integrate AI APIs into real products.</p>
       <div className="btns">
         <a className="btn btn-primary" onClick={() => navigate('/work')}>
