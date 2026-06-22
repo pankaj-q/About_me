@@ -8,10 +8,15 @@ export default function Home() {
 
   return (
     <section className="landing">
-      <div>
-        <span className="dot" />
-        {loading ? 'Loading...' : activity.isLive ? 'Backend Developer' : activity.statusText}
-      </div>
+     <div className="status">
+         <span className={`dot ${activity.isLive ? 'live' : 'offline'}`} />
+         {loading
+           ? 'Loading...'
+            : activity.isLive
+            ? 'Backend Developer'
+            : activity.statusText}
+    </div>
+       
        <h1>PANKAJ</h1>
       
       <p>I build server-side systems and integrate AI APIs into real products.</p>
