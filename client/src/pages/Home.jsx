@@ -8,11 +8,7 @@ export default function Home() {
 
   return (
     <section className="landing">
-      <div className="badge">
-        <span className="dot" />
-        {loading ? 'Loading...' : activity.isLive ? 'Live now' : activity.statusText}
-      </div>
-      <div className="badge">
+      <div>
         <span className="dot" />
         {loading ? 'Loading...' : activity.isLive ? 'Backend Developer' : activity.statusText}
       </div>

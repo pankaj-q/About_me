@@ -18,13 +18,44 @@ const heartbeatAttempts = new Map();
 
 app.disable('x-powered-by');
 
+const ALLOWED_ORIGINS = [
+  'https://pankajb.online',
+  'http://localhost:8000',
+  'http://localhost:5002',
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const origin = req.get('Origin');
+  if (!origin || ALLOWED_ORIGINS.includes(origin)) {
+    if (origin) res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGINS[0]);
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
+  res.setHeader('Access-Control-Max-Age', '86400');
+
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
   next();
 });
 
+const SELF = "'self'";
 app.use(helmet({
-  contentSecurityPolicy: false,
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: [SELF],
+      scriptSrc: [SELF],
+      styleSrc: [SELF, "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: [SELF, 'https://fonts.gstatic.com'],
+      imgSrc: [SELF, 'data:'],
+      connectSrc: [SELF],
+      frameAncestors: ["'none'"],
+      baseUri: [SELF],
+      formAction: [SELF],
+    },
+  },
   crossOriginEmbedderPolicy: false,
 }));
 
@@ -46,30 +77,37 @@ app.use(express.static(path.join(__dirname, 'client', 'dist'), {
   },
 }));
 
+function csrfProtection(req, res, next) {
+  if (req.method === 'GET') return next();
+  const origin = req.get('Origin');
+  const referer = req.get('Referer');
+  const valid = origin
+    ? ALLOWED_ORIGINS.includes(origin)
+    : referer
+      ? ALLOWED_ORIGINS.some(o => referer.startsWith(o))
+      : false;
+  if (!valid) return res.status(403).json({ error: 'Forbidden' });
+  next();
+}
+
 async function readActivity() {
   try {
     const raw = await fs.readFile(ACTIVITY_FILE, 'utf8');
     return JSON.parse(raw);
   } catch (error) {
-    if (error.code !== 'ENOENT') {
-      throw error;
-    }
-
+    if (error.code !== 'ENOENT') throw error;
     const fallback = {
       title: 'Backend - Login/SignUp',
       description: 'Writing backend for a video watching app like YouTube.',
-      lastActiveAt: new Date(Date.now() - DEFAULT_LAST_ACTIVE_MS_AGO).toISOString()
+      lastActiveAt: new Date(Date.now() - DEFAULT_LAST_ACTIVE_MS_AGO).toISOString(),
     };
-
     await writeActivity(fallback);
     return fallback;
   }
 }
 
 async function writeActivity(activity) {
-  if (!activity || typeof activity !== 'object') {
-    throw new Error('Invalid activity data');
-  }
+  if (!activity || typeof activity !== 'object') throw new Error('Invalid activity data');
   await fs.mkdir(path.dirname(ACTIVITY_FILE), { recursive: true });
   await fs.writeFile(ACTIVITY_FILE, `${JSON.stringify(activity, null, 2)}\n`);
 }
@@ -77,13 +115,10 @@ async function writeActivity(activity) {
 function formatRelativeTime(date, now = new Date()) {
   const diffMs = Math.max(0, now.getTime() - date.getTime());
   const minutes = Math.floor(diffMs / 60000);
-
   if (minutes < 1) return 'just now';
   if (minutes < 60) return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
-
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
-
   const days = Math.floor(hours / 24);
   return `${days} day${days === 1 ? '' : 's'} ago`;
 }
@@ -94,27 +129,22 @@ function toStatus(activity) {
   const hasValidDate = !Number.isNaN(lastActive.getTime());
   const safeLastActive = hasValidDate ? lastActive : new Date(now.getTime() - DEFAULT_LAST_ACTIVE_MS_AGO);
   const isLive = now.getTime() - safeLastActive.getTime() <= LIVE_WINDOW_MS;
-
   return {
     title: String(activity.title || '').slice(0, MAX_TEXT_LENGTH),
     description: String(activity.description || '').slice(0, MAX_TEXT_LENGTH),
     isLive,
     lastActiveAt: safeLastActive.toISOString(),
     relativeTime: formatRelativeTime(safeLastActive, now),
-    statusText: isLive ? 'live now' : `was live ${formatRelativeTime(safeLastActive, now)}`
+    statusText: isLive ? 'live now' : `was live ${formatRelativeTime(safeLastActive, now)}`,
   };
 }
 
 function requireActivityApiKey(req, res, next) {
-  if (!ACTIVITY_API_KEY) {
-    return res.status(503).json({ error: 'Activity updates are not configured' });
+  if (!ACTIVITY_API_KEY || ACTIVITY_API_KEY === 'change-this-long-random-secret') {
+    return res.status(503).json({ error: 'Activity updates are not configured. Set a secure ACTIVITY_API_KEY in .env' });
   }
-
   const key = req.get('x-api-key');
-  if (!key || key !== ACTIVITY_API_KEY) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+  if (!key || key !== ACTIVITY_API_KEY) return res.status(401).json({ error: 'Unauthorized' });
   next();
 }
 
@@ -128,11 +158,7 @@ function rateLimitActivityUpdates(req, res, next) {
   const windowMs = 60 * 1000;
   const maxAttempts = 10;
   const attempts = (postAttempts.get(ip) || []).filter((time) => now - time < windowMs);
-
-  if (attempts.length >= maxAttempts) {
-    return res.status(429).json({ error: 'Too many requests' });
-  }
-
+  if (attempts.length >= maxAttempts) return res.status(429).json({ error: 'Too many requests' });
   attempts.push(now);
   postAttempts.set(ip, attempts);
   next();
@@ -143,11 +169,7 @@ function rateLimitHeartbeat(req, res, next) {
   const now = Date.now();
   const windowMs = 30 * 1000;
   const attempts = (heartbeatAttempts.get(ip) || []).filter((t) => now - t < windowMs);
-
-  if (attempts.length >= 1) {
-    return res.json({ ok: true });
-  }
-
+  if (attempts.length >= 1) return res.json({ ok: true });
   attempts.push(now);
   heartbeatAttempts.set(ip, attempts);
   next();
@@ -179,7 +201,7 @@ app.get('/api/health', (req, res) => {
   res.json({ ok: true, service: 'about-pankaj-backend' });
 });
 
-app.get('/api/profile/activity', async (req, res, next) => {
+app.get('/api/profile/activity', csrfProtection, async (req, res, next) => {
   try {
     const activity = await readActivity();
     res.json(toStatus(activity));
@@ -188,33 +210,44 @@ app.get('/api/profile/activity', async (req, res, next) => {
   }
 });
 
-app.post('/api/profile/activity', validateActivityBody, requireActivityApiKey, rateLimitActivityUpdates, async (req, res, next) => {
-  try {
-    const current = await readActivity();
-    const updated = {
-      ...current,
-      title: cleanText(req.body.title, current.title),
-      description: cleanText(req.body.description, current.description),
-      lastActiveAt: cleanDate(req.body.lastActiveAt)
-    };
+app.post(
+  '/api/profile/activity',
+  csrfProtection,
+  validateActivityBody,
+  requireActivityApiKey,
+  rateLimitActivityUpdates,
+  async (req, res, next) => {
+    try {
+      const current = await readActivity();
+      const updated = {
+        ...current,
+        title: cleanText(req.body.title, current.title),
+        description: cleanText(req.body.description, current.description),
+        lastActiveAt: cleanDate(req.body.lastActiveAt),
+      };
+      await writeActivity(updated);
+      res.json(toStatus(updated));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
-    await writeActivity(updated);
-    res.json(toStatus(updated));
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post('/api/profile/heartbeat', rateLimitHeartbeat, async (req, res, next) => {
-  try {
-    const current = await readActivity();
-    current.lastActiveAt = new Date().toISOString();
-    await writeActivity(current);
-    res.json(toStatus(current));
-  } catch (error) {
-    next(error);
-  }
-});
+app.post(
+  '/api/profile/heartbeat',
+  csrfProtection,
+  rateLimitHeartbeat,
+  async (req, res, next) => {
+    try {
+      const current = await readActivity();
+      current.lastActiveAt = new Date().toISOString();
+      await writeActivity(current);
+      res.json(toStatus(current));
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 app.use((req, res, next) => {
   if (req.method === 'GET' && !req.path.startsWith('/api/')) {
@@ -233,16 +266,8 @@ function cleanup() {
   heartbeatAttempts.clear();
 }
 
-process.on('SIGTERM', () => {
-  cleanup();
-  process.exit(0);
-});
-
-process.on('SIGINT', () => {
-  cleanup();
-  process.exit(0);
-});
-
+process.on('SIGTERM', () => { cleanup(); process.exit(0); });
+process.on('SIGINT', () => { cleanup(); process.exit(0); });
 process.on('uncaughtException', (error) => {
   console.error(`[UNCAUGHT] ${error.message}`);
   cleanup();
@@ -250,5 +275,8 @@ process.on('uncaughtException', (error) => {
 });
 
 app.listen(PORT, () => {
+  if (ACTIVITY_API_KEY === 'change-this-long-random-secret') {
+    console.warn('[WARN] ACTIVITY_API_KEY is still the default value. Set a secure key in .env for production.');
+  }
   console.log(`Portfolio backend running at http://localhost:${PORT}`);
 });
